@@ -14,7 +14,7 @@
 
 * **Deep Q-Network (DQN)**
 
-  [Python test_code](./study/study_qlearning.py)
+  [Python test_code](./study/study_dqn_simple.py)
 
   ```
   tested_env : CartPole
@@ -29,5 +29,6 @@
     3. Fit action-value function Q using MSE and RMSProp
   ```
 
+* **Improvements : Exprolation strategy**
 
 
