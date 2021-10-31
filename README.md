@@ -1,5 +1,8 @@
 # Study for Reinforcement Learning with PyTorch
 
+
+## Value-based
+
 * **Q-Learning** 
 
   [Python test_code](./study/study_qlearning.py)
@@ -29,6 +32,6 @@
     3. Fit action-value function Q using MSE and RMSProp
   ```
 
-* **Improvements : Exprolation strategy**
+* **Improvements : Exprolation strategy** [notebook](./study/nb_study_exploration_strategies.ipynb)
 
 
