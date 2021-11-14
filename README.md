@@ -32,6 +32,34 @@
     3. Fit action-value function Q using MSE and RMSProp
   ```
 
-* **Improvements : Exprolation strategy** [notebook](./study/nb_study_exploration_strategies.ipynb)
+* **Improvements**
+
+  [E-Greedy Exploration methods](./study/nb_study_exploration_strategies.ipynb)
+
+  ```
+  1. Constant Epsilon-Greedy
+  2. Linear Decay Epsilon-Greedy
+  3. Exponential Decay Epsilon-Greedy
+  ```
+
+  [Loss functions](./study/nb_study_loss_functions.ipynb)
+  ```
+  Issues
+
+  Mean Square Error (MSE or L2) penalizes large errors than small errors. Mean Absolute Error (MAE or L1) is a linear function but not differentiable at zero.
+  The Huber loss has the advantages of both functions, penalizing the errors near zero and becoming linear for large errors.
+  ```
+
+* **DQN Variants**
+
+  [Python test_code](./study/study_improved_dqn.py)
+
+  ```
+  tested_env : CartPole
+
+
+  ```
+
+
 
 
