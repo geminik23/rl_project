@@ -50,15 +50,25 @@
   The Huber loss has the advantages of both functions, penalizing the errors near zero and becoming linear for large errors.
   ```
 
-* **DQN Variants**
+* **Improved DQN**
 
-  [Python test_code](./study/study_improved_dqn.py)
 
+  [Double DQN](./study/study_double_dqn.py)
   ```
   tested_env : CartPole
 
+  Use the online network to find the index of the best action
+
+  The only difference from DQN is 
+
+      R + gamma * Q_Target(s', max_a'(Q_Online(s', a')))
 
   ```
+
+  [Dueling DQN](./study/study_dueling_dqn.py)
+
+  
+
 
 
 

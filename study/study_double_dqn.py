@@ -10,7 +10,7 @@ import time
 ##########################
 # HYPERPARAMETERS
 ENV_NAME = 'CartPole-v0'
-NUM_EPISODES = 1000 
+NUM_EPISODES = 10000
 RENDER = False
 E = 0.1 # e-greedy
 LAMBDA = .99
@@ -18,12 +18,21 @@ LEARNING_RATE = 0.001
 UPDATE_TARGET_STEP = 5
 BATCH_SIZE = 64
 BUFFER_CAPACITY = 1000
+
+
+TRAIN = True
+TEST = True
+
+
+
+### 
+DOUBLE = True
+
 ##########################
 
 device = "cpu"
 if torch.cuda.is_available():
     device = "cuda:0"
-
 
 #=================================================================NETWORK
 # Q-network -> input - 32 - output with relu
@@ -113,8 +122,6 @@ def e_greedy_strategy(model, state, epsilon):
 if __name__ == '__main__':
     import gym
 
-    train = True
-    test = True
 
 
     env = gym.make(ENV_NAME)
@@ -132,7 +139,7 @@ if __name__ == '__main__':
     target_model = Model(n_state, n_action).to(device)
     update_network(target_model, online_model)
 
-    if train:
+    if TRAIN:
         print('Training {}'.format(ENV_NAME))
 
         online_model.train()
@@ -172,7 +179,15 @@ if __name__ == '__main__':
                     ## BEGIN::Optimize Model
                     with torch.no_grad():
                         states, actions, rewards, next_states, is_dones = experiences
-                        max_a_q_value = target_model(preprocess_state(next_states)).detach().max(1)[0].unsqueeze(1)
+
+                        ############################################################################################################
+                        # TARGET TO ONLINE
+                        if DOUBLE:
+                            max_a_q_value = online_model(preprocess_state(next_states)).detach().max(1)[0].unsqueeze(1)
+                        else:
+                            max_a_q_value = target_model(preprocess_state(next_states)).detach().max(1)[0].unsqueeze(1)
+                        ############################################################################################################
+
                         target_q_value = rewards + (LAMBDA* max_a_q_value * (1 - is_dones))
                         # print(target_q_value)
                     q_value = online_model(preprocess_state(states)).gather(1, actions)
@@ -204,7 +219,7 @@ if __name__ == '__main__':
             print('\tepisode: {}/{}  | total reward : {:.3f} | elapsed time: {:.3f}'.format(i, NUM_EPISODES, episode_reward, time.time() - start_time))
             pass
 
-    if test:
+    if TEST:
         print('')
         print('')
         print('')
