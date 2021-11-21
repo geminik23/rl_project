@@ -67,9 +67,17 @@
 
   [Dueling DQN](./study/study_dueling_dqn.py)
 
+  ```
+  tested_env : CartPole
+
   
+  Idea from 'Decoupling the action-indepent value of state and Q-value may lead to more robust learning'
+  
+  Q-Value can be split into state value and action advantage part
+  Q(s, a) = V(s) + A(s, a)
 
-
+  New network architure from this.
+  ```
 
 
 
