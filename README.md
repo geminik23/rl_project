@@ -79,10 +79,7 @@
   New network architure from this.
   ```
 
-* **PER (Prioritized Experience Replay)**
 
-  [Python test_code](./study/study_per.py)
-  
 
 
 ### TODO
@@ -90,19 +87,8 @@
 - [x] DQN
 - [x] Double DQN
 - [x] Dueling DQN
-- [ ] Refactoring
-- [ ] Distributed DQN (C51)
-- [ ] PER(Prioritized experience replay)
-
-## Policy-based
-### TODO
 - [ ] REINFORCE
-
-## Actor-Critic
-
-### TODO
 - [ ] AC
-- [ ] A2C | A3C
 - [ ] DDPG
 - [ ] TD3
 - [ ] Soft AC
