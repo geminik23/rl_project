@@ -79,16 +79,8 @@
   New network architure from this.
   ```
 
-
-
-
 ### TODO
 - [x] Q-Learning
 - [x] DQN
 - [x] Double DQN
 - [x] Dueling DQN
-- [ ] REINFORCE
-- [ ] AC
-- [ ] DDPG
-- [ ] TD3
-- [ ] Soft AC
