@@ -79,8 +79,18 @@
   New network architure from this.
   ```
 
-### TODO
-- [x] Q-Learning
-- [x] DQN
-- [x] Double DQN
-- [x] Dueling DQN
+
+## Policy-Based
+
+**Monte Carlo REINFORCE**
+
+  [Python test_code](./study/study_policy_gradient.py)
+
+  ```
+  Doing...
+  ```
+ 
+
+
+
+
