@@ -3,23 +3,24 @@ import torch
 import torch.nn as nn
 import gc
 from torch.optim import SGD, Adam, RMSprop
-from itertools import count
 import time
 
 
 ##########################
 # HYPERPARAMETERS
 ENV_NAME = 'CartPole-v0'
-NUM_EPISODES = 1000 
+NUM_EPISODES = 1000
+NUM_TEST_EPISODES = 200
 RENDER = False
 
-LAMBDA = .99
+GAMMA = 0.99
 LEARNING_RATE = 0.01
 ##########################
 
 device = "cpu"
 if torch.cuda.is_available():
     device = "cuda:0"
+
 
 class DemoNetwork(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -40,20 +41,17 @@ def preprocess_state(state):
     """
     convert into the torch
     """
-    state = torch.tensor(state, device=device, dtype=torch.float32)
+    state = torch.tensor(state, device=device, dtype=torch.float32).unsqueeze(0)
     return state
 
 def select_action(model, state):
     state = preprocess_state(state)
-    with torch.no_grad(): 
-        probs = model(state).cpu().detach().numpy()
-        dist = torch.distributions.Categorical(logits=probs)
-        action = dist.sample()
-        return action.item()
-
-
-
+    probs = model.forward(state)
+    dist = torch.distributions.Categorical(logits=probs)
+    action = dist.sample()
+    return action.item(), dist.log_prob(action).unsqueeze(-1)
     
+
 if __name__ == '__main__':
     import gym
     train = True
@@ -65,47 +63,62 @@ if __name__ == '__main__':
     n_action = env.action_space.n
 
     Model = DemoNetwork
-    Optimizer = RMSprop
-
-    step_count = 0
-
+    Optimizer = Adam
     model = Model(n_state, n_action).to(device)
 
     if train:
         print('Training {}'.format(ENV_NAME))
+        model.train()
 
-        online_model.train()
-        target_model.eval()
-
+        optimizer = Optimizer(model.parameters(), lr=LEARNING_RATE)
         ##
-        optimizer = Optimizer(online_model.parameters(), lr=LEARNING_RATE)
-
         start_time = time.time()
-
         for i in range(1, NUM_EPISODES+1):
             state, is_done = env.reset(), False
-            episode_reward = 0
 
-            ## BEGIN ::: Train Model
+            episode_total_reward = 0
+            episode_rewards = []
+            episode_logpa = []
+
             ## each step, experience
             while True:
+                action, logpa = select_action(model, state)
+                next_state, reward, is_done, _ = env.step(action)
                 if RENDER: env.render()
-                action = select_action(model, state)
 
+                episode_rewards.append(reward)
+                episode_logpa.append(logpa)
+                episode_total_reward += reward
+
+                state = next_state
 
                 if is_done:
-                    
                     # terminate the episode
                     break
 
-                ## END::Update
-            ## END ::: 
+            ## BEGIN ::: Train Model
+            
+            # discounts factores
+            len_t = len(episode_rewards)
 
-            # garbage collect
+            optimizer.zero_grad()
+            # discounts * rewards
+            discounts = np.logspace(0, len_t, num=len_t, base=GAMMA, endpoint=False)
+            returns = np.array([np.sum(discounts[:len_t-i]*episode_rewards[i:]) for i in range(len_t)])
+
+            discounts = torch.FloatTensor(discounts).unsqueeze(1).to(device)
+            returns = torch.FloatTensor(returns).unsqueeze(1).to(device)
+            logpa = torch.cat(episode_logpa).to(device)
+
+            ploss = -(discounts*returns*logpa).mean()
+            optimizer.zero_grad()
+            ploss.backward()
+            optimizer.step()
+            ## END ::: 
             gc.collect()
 
             # if i%5 == 0:
-            print('\tepisode: {}/{}  | total reward : {:.3f} | elapsed time: {:.3f}'.format(i, NUM_EPISODES, episode_reward, time.time() - start_time))
+            print('\tepisode: {}/{}  | total reward : {:.3f} | elapsed time: {:.3f}'.format(i, NUM_EPISODES, episode_total_reward, time.time() - start_time))
             pass
 
 
@@ -114,13 +127,15 @@ if __name__ == '__main__':
         print('')
         print('')
         print('Testing {}'.format(ENV_NAME))
-        for i in range(1, NUM_EPISODES+1):
+        model.eval()
+        for i in range(1, NUM_TEST_EPISODES+1):
             state = env.reset()
             episode_reward = 0
             if RENDER: env.render()
 
             while True:
-                action = select_action(online_model, state, 0)
+                action, _ = select_action(model, state)
+
                 # get new state and reward from environment
                 new_state, reward, is_done, _ = env.step(action)
 
@@ -131,7 +146,5 @@ if __name__ == '__main__':
                     break
 
             # if i%5 == 0:
-            print('\tepisode: {}/{}  | total reward : {:.3f}'.format(i, NUM_EPISODES, episode_reward))
+            print('\tepisode: {}/{}  | total reward : {:.3f}'.format(i, NUM_TEST_EPISODES, episode_reward))
             pass
-
-
