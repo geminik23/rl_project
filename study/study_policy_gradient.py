@@ -12,17 +12,14 @@ import time
 ENV_NAME = 'CartPole-v0'
 NUM_EPISODES = 1000 
 RENDER = False
-E = 0.1 # e-greedy
+
 LAMBDA = .99
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 ##########################
 
 device = "cpu"
 if torch.cuda.is_available():
     device = "cuda:0"
-
-
-#=================================================================NETWORK
 
 class DemoNetwork(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -39,14 +36,6 @@ class DemoNetwork(nn.Module):
         x = state
         return self.model(x)
 
-
-def update_network(target, online):
-    """
-    update the online network into target network
-    """
-    target.load_state_dict(online.state_dict())
-
-
 def preprocess_state(state): 
     """
     convert into the torch
@@ -54,17 +43,13 @@ def preprocess_state(state):
     state = torch.tensor(state, device=device, dtype=torch.float32)
     return state
 
-
 def select_action(model, state):
     state = preprocess_state(state)
     with torch.no_grad(): 
         probs = model(state).cpu().detach().numpy()
         dist = torch.distributions.Categorical(logits=probs)
         action = dist.sample()
-        logpa = dist.log_prob(action).unsqueeze(-1)
-        entropy = dist.entropy().unsqueeze(-1)
-        is_exploratory = action != np.argmax(probs.detach().numpy())
-        return action.item(), is_exploratory.item(), logpa, entropy
+        return action.item()
 
 
 
@@ -81,7 +66,6 @@ if __name__ == '__main__':
 
     Model = DemoNetwork
     Optimizer = RMSprop
-    
 
     step_count = 0
 
@@ -101,12 +85,16 @@ if __name__ == '__main__':
         for i in range(1, NUM_EPISODES+1):
             state, is_done = env.reset(), False
             episode_reward = 0
-            if RENDER: env.render()
 
             ## BEGIN ::: Train Model
             ## each step, experience
             while True:
+                if RENDER: env.render()
+                action = select_action(model, state)
+
+
                 if is_done:
+                    
                     # terminate the episode
                     break
 
