@@ -82,14 +82,32 @@
 
 ## Policy-Based
 
-**Monte Carlo REINFORCE**
+**REINFORCE**
 
   [Python test_code](./study/study_policy_gradient.py)
 
   ```
-  Doing...
+  tested_env : CartPole
+
+  PG suffers a large variance when estimating the gradient.
+
+  To alleviate the variance problem, use the 
+
+  1. discount factor
+
+  2. baseline.
+
   ```
  
+
+## Actor-Critic
+
+**Actor-Critic(AC)**
+
+  [Python test_code](./study/study_ac.py)
+  ```
+  ```
+
 
 
 
