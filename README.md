@@ -1,5 +1,7 @@
 # Study for Reinforcement Learning with PyTorch
 
+## Double Duealing Deep Q-Network for MsPacman-v0 from OpenAI Gym
+  [Notebook](./ddqn_for_pacman.ipynb)
 
 ## Value-based
 
