@@ -181,9 +181,9 @@ if __name__ == '__main__':
                         states, actions, rewards, next_states, is_dones = experiences
 
                         ############################################################################################################
-                        # TARGET TO ONLINE
                         if DOUBLE:
-                            max_a_q_value = online_model(preprocess_state(next_states)).detach().max(1)[0].unsqueeze(1)
+                            max_a_index = online_model(preprocess_state(next_states)).detach().argmax(1)
+                            max_a_q_value = target_model(preprocess_state(next_states)).gather(1, max_a_index.unsqueeze(1))
                         else:
                             max_a_q_value = target_model(preprocess_state(next_states)).detach().max(1)[0].unsqueeze(1)
                         ############################################################################################################
