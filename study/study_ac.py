@@ -8,12 +8,12 @@ import torch.nn.functional as F
 # HYPERPARAMETERS
 ENV_NAME = 'CartPole-v0'
 
-NUM_EPISODES = 1000
+NUM_EPISODES = 100000
 NUM_TEST_EPISODES = 200
 
 RENDER = False
 LAMBDA = .99
-LR_ACTOR = 0.001
+LR_ACTOR = 0.01
 LR_CRITIC = 0.01
 ##########################
 
@@ -74,22 +74,18 @@ class Critic:
 
 def get_actor_model(n_state, n_action):
     model = nn.Sequential(
-            nn.Linear(n_state, 64),
+            nn.Linear(n_state, 32),
             nn.Tanh(),
-            nn.Linear(64, 64),
-            nn.Tanh(),
-            nn.Linear(64, n_action)
+            nn.Linear(32, n_action)
             )
     model.to(device)
     return model
 
 def get_critic_model(n_state):
     model = nn.Sequential(
-            nn.Linear(n_state, 64),
+            nn.Linear(n_state, 32),
             nn.Tanh(),
-            nn.Linear(64, 64),
-            nn.Tanh(),
-            nn.Linear(64, 1)
+            nn.Linear(32, 1)
             )
     model.to(device)
     return model

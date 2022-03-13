@@ -1,3 +1,4 @@
+from dis import dis
 import numpy as np
 import torch
 import torch.nn as nn
@@ -9,11 +10,12 @@ import time
 ##########################
 # HYPERPARAMETERS
 ENV_NAME = 'CartPole-v0'
-NUM_EPISODES = 1000
-NUM_TEST_EPISODES = 200
+NUM_EPISODES = 400
+NUM_TEST_EPISODES = 100
 RENDER = False
+EPS = torch.finfo(torch.float32).eps
 
-GAMMA = 0.99
+GAMMA = 0.9
 LEARNING_RATE = 0.01
 ##########################
 
@@ -50,9 +52,26 @@ def select_action(model, state):
     dist = torch.distributions.Categorical(logits=probs)
     action = dist.sample()
     return action.item(), dist.log_prob(action).unsqueeze(-1)
+
+
+def discount_and_norm_reward(episode_rewards):
+    len_t = len(episode_rewards)
+
+    discount_r = torch.zeros(len_t).float().unsqueeze(1).to(device)
+    temp = 0
+    for t in reversed(range(0, len_t)):
+        temp = temp * GAMMA+ episode_rewards[t]
+        discount_r[t] = temp
+
+    rewards = (discount_r - discount_r.mean()) / (discount_r.std() + EPS)
+    return rewards
+    
+    
     
 
 if __name__ == '__main__':
+
+
     import gym
     train = True
     test = True
@@ -97,20 +116,13 @@ if __name__ == '__main__':
                     break
 
             ## BEGIN ::: Train Model
-            
-            # discounts factores
-            len_t = len(episode_rewards)
-
             optimizer.zero_grad()
-            # discounts * rewards
-            discounts = np.logspace(0, len_t, num=len_t, base=GAMMA, endpoint=False)
-            returns = np.array([np.sum(discounts[:len_t-i]*episode_rewards[i:]) for i in range(len_t)])
 
-            discounts = torch.FloatTensor(discounts).unsqueeze(1).to(device)
-            returns = torch.FloatTensor(returns).unsqueeze(1).to(device)
             logpa = torch.cat(episode_logpa).to(device)
+            discounted_return = discount_and_norm_reward(episode_rewards)
+            
 
-            ploss = -(discounts*returns*logpa).mean()
+            ploss = -(discounted_return*logpa).mean()
             optimizer.zero_grad()
             ploss.backward()
             optimizer.step()

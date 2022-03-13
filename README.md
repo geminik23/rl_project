@@ -109,6 +109,10 @@
 
   [Python test_code](./study/study_ac.py)
   ```
+  tested_env : CartPole
+  
+  Actor-Critic online learning..
+
   ```
 
 
